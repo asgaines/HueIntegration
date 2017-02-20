@@ -41,7 +41,7 @@ Upon recognition of state change, prints `id` and changed attribute of the modif
 - Download and install repository
  - `git clone https://github.com/asgaines/HueIntegration HueIntegration`
  - `cd HueIntegration`
- - `pip install requirements.txt`
+ - `pip install -r requirements.txt`
 
 ## Run program
 
