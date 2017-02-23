@@ -73,7 +73,7 @@ class TestIntegration(unittest.TestCase):
         self.lights[light_id]['name'] = new_name
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge.poll()
+        self.bridge.poll()
 
         call_str = '{{\n    "id": "{id}",\n    "name": "{name}"\n}}'.format(id=light_id, name=new_name)
         print_mock.assert_called_with(call_str)
@@ -89,7 +89,7 @@ class TestIntegration(unittest.TestCase):
         self.lights[light_id]['brightness'] = new_brightness
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge.poll()
+        self.bridge.poll()
 
         call_str = '{{\n    "brightness": {brightness},\n    "id": "{id}"\n}}'.format(id=light_id, brightness=new_brightness)
         print_mock.assert_called_with(call_str)
@@ -105,7 +105,12 @@ class TestIntegration(unittest.TestCase):
         self.lights[light_id]['on'] = new_on
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge.poll()
+        self.bridge.poll()
+
+        output_expected = {
+                'id': light_id,
+                'on': new_on,
+            }
 
         bool_str = 'true' if new_on else 'false'
         call_str ='{{\n    "id": "{id}",\n    "on": {on}\n}}'.format(id=light_id, on=bool_str)
@@ -127,7 +132,7 @@ class TestIntegration(unittest.TestCase):
         self.lights[light_id]['name'] = new_name
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge.poll()
+        self.bridge.poll()
 
         self.assertEqual(print_mock.call_count, 3)
 
@@ -143,7 +148,12 @@ class TestIntegration(unittest.TestCase):
         del self.lights['1']
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge.poll()
+        self.bridge.poll()
+
+        output_expected = {
+                'id': light_id,
+                'on': False
+            }
 
         self.assertEqual(self.lights, bridge.lights)
         
