@@ -34,14 +34,35 @@ class TestIntegration(unittest.TestCase):
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
         self.bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
 
-    @mock.patch('devices.HueBridge.fetch_lights')
-    def test_init_bridge_sets_initial_attrs(self, fetch_lights_mock):
-        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
+    def test_init_bridge_sets_initial_attrs(self):
+        self.assertEqual(self.bridge.ip, self.valid_ip_address)
+        self.assertEqual(self.bridge.port, self.valid_port)
 
-        self.assertEqual(bridge.lights, self.lights)
-        self.assertEqual(bridge.ip, self.valid_ip_address)
-        self.assertEqual(bridge.port, self.valid_port)
+    @mock.patch('devices.print')
+    @mock.patch('devices.HueBridge.fetch_lights')
+    def test_bridge_outputs_light_data_on_init(self, fetch_lights_mock, print_mock):
+        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
+        new_bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
+        output_actual = json.loads(print_mock.call_args[0][0])
+        output_expected = [
+                {
+                    'brightness': 200,
+                    'id': '2',
+                    'name': 'Light 2',
+                    'on': False
+                },
+                {
+                    'brightness': 100,
+                    'id': '1',
+                    'name': 'Light 1',
+                    'on': True
+                },
+            ]
+
+        self.assertEqual(print_mock.call_count, 1)
+        self.assertEqual(len(output_actual), len(output_expected))
+        for data in output_expected:
+            self.assertIn(data, output_actual)
 
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
