@@ -75,8 +75,12 @@ class TestIntegration(unittest.TestCase):
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
         self.bridge.poll()
 
-        call_str = '{{\n    "id": "{id}",\n    "name": "{name}"\n}}'.format(id=light_id, name=new_name)
-        print_mock.assert_called_with(call_str)
+        output_expected = {
+                'id': light_id,
+                'name': new_name
+            }
+
+        output_actual = json.loads(print_mock.call_args[0][0])
 
         self.assertEqual(bridge.lights[light_id]['name'], new_name)
 
@@ -91,10 +95,16 @@ class TestIntegration(unittest.TestCase):
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
         self.bridge.poll()
 
-        call_str = '{{\n    "brightness": {brightness},\n    "id": "{id}"\n}}'.format(id=light_id, brightness=new_brightness)
-        print_mock.assert_called_with(call_str)
+        output_expected = {
+                'brightness': new_brightness,
+                'id': light_id,
+            }
 
-        self.assertEqual(bridge.lights[light_id]['brightness'], new_brightness)
+        output_actual = json.loads(print_mock.call_args[0][0])
+
+        self.assertEqual(print_mock.call_count, 1)
+        self.assertEqual(output_actual, output_expected)
+        self.assertEqual(self.bridge.lights[light_id]['brightness'], new_brightness)
 
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
@@ -112,9 +122,7 @@ class TestIntegration(unittest.TestCase):
                 'on': new_on,
             }
 
-        bool_str = 'true' if new_on else 'false'
-        call_str ='{{\n    "id": "{id}",\n    "on": {on}\n}}'.format(id=light_id, on=bool_str)
-        print_mock.assert_called_with(call_str)
+        output_actual = json.loads(print_mock.call_args[0][0])
 
         self.assertEqual(bridge.lights[light_id]['on'], new_on)
 
@@ -143,7 +151,22 @@ class TestIntegration(unittest.TestCase):
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_lights_update_to_removed_light(self, fetch_lights_mock):
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
+        self.bridge.poll()
+
+        output_actual = json.loads(print_mock.call_args[0][0])
+
+        output_expected = [
+                {
+                    'brightness': 123,
+                    'id': '3',
+                    'name': 'Light 3',
+                    'on': True
+                }
+            ]
+
+        self.assertEqual(print_mock.call_count, 1)
+        self.assertEqual(output_actual, output_expected)
+        self.assertEqual(self.lights, self.bridge.lights)
         
         del self.lights['1']
 
@@ -155,5 +178,9 @@ class TestIntegration(unittest.TestCase):
                 'on': False
             }
 
-        self.assertEqual(self.lights, bridge.lights)
+        output_actual = json.loads(print_mock.call_args[0][0])
+
+        self.assertEqual(print_mock.call_count, 1)
+        self.assertEqual(output_actual, output_expected)
+        self.assertEqual(self.lights, self.bridge.lights)
         
