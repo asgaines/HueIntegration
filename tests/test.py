@@ -67,8 +67,6 @@ class TestIntegration(unittest.TestCase):
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_poll_updates_changed_name(self, fetch_lights_mock, print_mock):
-        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
         light_id = '1'
         
         new_name = self.lights[light_id]['name'] + ' -- updated'
@@ -85,8 +83,6 @@ class TestIntegration(unittest.TestCase):
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_poll_updates_changed_brightness(self, fetch_lights_mock, print_mock):
-        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
         light_id = '1'
         
         new_brightness = self.lights[light_id]['brightness'] + 1
@@ -103,8 +99,6 @@ class TestIntegration(unittest.TestCase):
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_poll_updates_changed_on_off(self, fetch_lights_mock, print_mock):
-        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
         light_id = '1'
         
         new_on = not self.lights[light_id]['on']
@@ -122,8 +116,6 @@ class TestIntegration(unittest.TestCase):
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_poll_updates_changes_when_all_changed(self, fetch_lights_mock, print_mock):
-        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
-        bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
         light_id = '2'
         
         new_on = not self.lights[light_id]['on']
