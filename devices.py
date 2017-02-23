@@ -34,16 +34,36 @@ class HueBridge():
             }
 
     def poll(self):
-        lights = self.fetch_lights()
-        for light_id, light in lights.items():
-            self.print_difference(light_id, light)
-        self.lights = lights
+        lights_fetched = self.fetch_lights()
+        if lights_fetched != self.lights:
+            lights_self_keyset = set(self.lights.keys())
+            lights_fetched_keyset = set(lights_fetched.keys())
 
-    def print_difference(self, new_light_id, new_light):
-        if self.lights.get(new_light_id):
-            for attr in self.light_state_attrs:
-                if new_light.get(attr) != self.lights.get(new_light_id).get(attr):
-                    print(json.dumps({'id': new_light_id, attr: new_light.get(attr)}, indent=4, sort_keys=True))
+            keys_only_in_self = lights_self_keyset.difference(lights_fetched_keyset)
+            keys_only_in_fetched = lights_fetched_keyset.difference(lights_self_keyset)
+            keys_intersection = lights_self_keyset.intersection(lights_fetched_keyset)
+
+            for light_id, light_data in [(key, self.lights.get(key)) for key in keys_intersection]:
+                self.output_difference(light_id, lights_fetched.get(light_id))
+
+            for light_id, light_data in [(key, self.lights.get(key)) for key in keys_only_in_self]:
+                self.output_deleted_light(light_id)
+
+            if keys_only_in_fetched:
+                self.output_new_lights({light_id: lights_fetched.get(light_id) for light_id in keys_only_in_fetched})
+
+            self.lights = lights_fetched
+
+    def output_difference(self, fetched_light_id, fetched_light):
+        for attr in self.light_state_attrs:
+            if fetched_light.get(attr) != self.lights.get(fetched_light_id).get(attr):
+                self.output_object({'id': fetched_light_id, attr: fetched_light.get(attr)})
+
+    def output_new_lights(self, lights):
+        self.output_object([{'id': light_id, **lights.get(light_id)} for light_id in lights])
+
+    def output_deleted_light(self, light_id):
+        self.output_object({'id': light_id, 'on': False})
 
     def fetch_resource(self, path):
         try:
@@ -54,6 +74,9 @@ class HueBridge():
         except Exception as e:
             logging.error(e)
             exit()
+
+    def output_object(self, o):
+        print(json.dumps(o, indent=4, sort_keys=True))
 
     def get_endpoint(self):
         base = '{scheme}://{ip}:{port}'.format(
