@@ -82,7 +82,7 @@ class TestIntegration(unittest.TestCase):
 
         output_actual = json.loads(print_mock.call_args[0][0])
 
-        self.assertEqual(bridge.lights[light_id]['name'], new_name)
+        self.assertEqual(self.bridge.lights[light_id]['name'], new_name)
 
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
@@ -124,7 +124,9 @@ class TestIntegration(unittest.TestCase):
 
         output_actual = json.loads(print_mock.call_args[0][0])
 
-        self.assertEqual(bridge.lights[light_id]['on'], new_on)
+        self.assertEqual(print_mock.call_count, 1)
+        self.assertEqual(output_actual, output_expected)
+        self.assertEqual(self.bridge.lights[light_id]['on'], new_on)
 
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
@@ -144,10 +146,11 @@ class TestIntegration(unittest.TestCase):
 
         self.assertEqual(print_mock.call_count, 3)
 
-        self.assertEqual(bridge.lights[light_id]['on'], new_on)
-        self.assertEqual(bridge.lights[light_id]['name'], new_name)
-        self.assertEqual(bridge.lights[light_id]['brightness'], new_brightness)
+        self.assertEqual(self.bridge.lights[light_id]['on'], new_on)
+        self.assertEqual(self.bridge.lights[light_id]['name'], new_name)
+        self.assertEqual(self.bridge.lights[light_id]['brightness'], new_brightness)
 
+    @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_lights_update_to_removed_light(self, fetch_lights_mock):
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
