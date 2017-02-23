@@ -38,7 +38,6 @@ if __name__ == '__main__':
         exit()
 
     bridge = HueBridge(ip_address, port)
-    bridge.print_data()
 
     while True:
         # Hue has no event subscriptions, need to resort to polling

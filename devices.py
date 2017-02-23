@@ -19,6 +19,7 @@ class HueBridge():
         self.ip = ip
         self.port = port
         self.lights = self.fetch_lights()
+        self.output_new_lights(self.lights)
 
     def fetch_lights(self):
         data = self.fetch_resource('lights')
