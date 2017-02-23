@@ -10,10 +10,10 @@ import settings
 
 class HueBridge():
     light_state_attrs = [
-        'name',
-        'brightness',
-        'on',
-    ]
+            'name',
+            'brightness',
+            'on',
+        ]
 
     def __init__(self, ip, port):
         self.ip = ip
@@ -27,13 +27,11 @@ class HueBridge():
     
     def fetch_light_state(self, light_id):
         light_data = self.fetch_resource('lights/{id}'.format(id=light_id))
-        return dict(name=light_data.get('name'), 
-                brightness=light_data.get('state').get('bri'),
-                on=light_data.get('state').get('on'))
-
-    def print_data(self):
-        lights = [{'id': light_id, **self.lights.get(light_id)} for light_id in self.lights]
-        print(json.dumps(lights, indent=4))
+        return {
+                'name': light_data.get('name'),
+                'brightness': light_data.get('state').get('bri'),
+                'on': light_data.get('state').get('on'),
+            }
 
     def poll(self):
         lights = self.fetch_lights()
