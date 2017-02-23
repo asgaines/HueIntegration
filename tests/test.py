@@ -152,7 +152,14 @@ class TestIntegration(unittest.TestCase):
 
     @mock.patch('devices.print')
     @mock.patch('devices.HueBridge.fetch_lights')
-    def test_lights_update_to_removed_light(self, fetch_lights_mock):
+    def test_lights_update_to_added_light(self, fetch_lights_mock, print_mock):
+        # Data for a new light recently connected to bridge
+        self.lights['3'] = {
+                'name': 'Light 3',
+                'on': True,
+                'brightness': 123,
+            }
+
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
         self.bridge.poll()
 
@@ -171,7 +178,15 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(output_actual, output_expected)
         self.assertEqual(self.lights, self.bridge.lights)
         
-        del self.lights['1']
+
+    @mock.patch('devices.print')
+    @mock.patch('devices.HueBridge.fetch_lights')
+    def test_lights_update_to_removed_light(self, fetch_lights_mock, print_mock):
+        light_id = '1'
+        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
+
+        # Simulate light being disconnected or turned off manually
+        del self.lights[light_id]
 
         fetch_lights_mock.return_value = copy.deepcopy(self.lights)
         self.bridge.poll()
