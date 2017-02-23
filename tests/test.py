@@ -27,8 +27,12 @@ class TestIntegration(unittest.TestCase):
     valid_ip_address = '192.168.1.10'
     valid_port = 8080
 
-    def setUp(self):
+    @mock.patch('devices.print')
+    @mock.patch('devices.HueBridge.fetch_lights')
+    def setUp(self, fetch_lights_mock, print_mock):
         self.lights = copy.deepcopy(lights)
+        fetch_lights_mock.return_value = copy.deepcopy(self.lights)
+        self.bridge = devices.HueBridge(self.valid_ip_address, self.valid_port)
 
     @mock.patch('devices.HueBridge.fetch_lights')
     def test_init_bridge_sets_initial_attrs(self, fetch_lights_mock):
